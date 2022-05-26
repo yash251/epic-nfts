@@ -24,8 +24,32 @@ contract MyEpicNFT is ERC721URIStorage {
     string[] thirdWords = ["Kendall", "Ariana", "Alia", "Deepika", "Milley", "Khushi", "Emma", "Margot", "Angelina", "Selena", "Rihanna", "Camila", "Beyonce", "Billie", "Dua"];
 
     // We need to pass the name of our NFTs token and its symbol.
-    constructor() ERC721 ("SquareNFT", "SQUARE") {
+    constructor() ERC721 ("YashFavourites", "YASHFAV") {
         console.log("This is a constructor");
+    }
+
+    // function to randomly pick a word from each array
+    function random(string memory input) internal pure returns(uint256) {
+        return uint256(keccak256(abi.encodePacked(input)));
+    }
+
+    function pickRandomFirstWord(uint256 tokenId) public view returns(string memory) {
+        uint256 rand = random(string(abi.encodePacked("FIRST_WORD", Strings.toString(tokenId))));
+        // Squash the # between 0 and the length of the array to avoid going out of bounds.
+        rand = rand % firstWords.length;
+        return firstWords[rand];
+    }
+
+    function pickRandomSecondWord(uint256 tokenId) public view returns(string memory) {
+        uint256 rand = random(string(abi.encodePacked("SECOND_WORD", Strings.toString(tokenId))));
+        rand = rand % secondWords.length;
+        return secondWords[rand];
+    }
+
+    function pickRandomThirdWord(uint256 tokenId) public view returns(string memory) {
+        uint256 rand = random(string(abi.encodePacked("THIRD_WORD", Strings.toString(tokenId))));
+        rand = rand % thirdWords.length;
+        return thirdWords[rand];
     }
 
     // a function our user will hit to get their NFT
@@ -33,11 +57,22 @@ contract MyEpicNFT is ERC721URIStorage {
         // get the current tokenId, this starts at 0
         uint256 newItemId = _tokenIds.current();
 
+        // We go and randomly grab one word from each of the three arrays
+        string memory first = pickRandomFirstWord(newItemId);
+        string memory second = pickRandomSecondWord(newItemId);
+        string memory third = pickRandomThirdWord(newItemId);
+
+        // I concatenate it all together, and then close the <text> and <svg> tags.
+        string memory finalSvg = string(abi.encodePacked(baseSvg, first, second, third, "</text></svg>"));
+        console.log("\n--------------------");
+        console.log(finalSvg);
+        console.log("--------------------\n");
+
         // actually mint the NFT to the sender using msg.sender
         _safeMint(msg.sender, newItemId);
 
         // set the NFTs data
-        _setTokenURI(newItemId, "data:application/json;base64,ewogICAgIm5hbWUiOiAiWWFzaEJsb2NrY2hhaW5Gb3JldmVyIiwKICAgICJkZXNjcmlwdGlvbiI6ICJBbiBORlQgZnJvbSB0aGUgaGlnaGx5IGFjY2xhaW1lZCBZYXNoIGNvbGxlY3Rpb24iLAogICAgImltYWdlIjogImRhdGE6aW1hZ2Uvc3ZnK3htbDtiYXNlNjQsUEhOMlp5QjRiV3h1Y3owaWFIUjBjRG92TDNkM2R5NTNNeTV2Y21jdk1qQXdNQzl6ZG1jaUlIQnlaWE5sY25abFFYTndaV04wVW1GMGFXODlJbmhOYVc1WlRXbHVJRzFsWlhRaUlIWnBaWGRDYjNnOUlqQWdNQ0F6TlRBZ016VXdJajRLSUNBZ0lEeHpkSGxzWlQ0dVltRnpaU0I3SUdacGJHdzZJSGRvYVhSbE95Qm1iMjUwTFdaaGJXbHNlVG9nYzJWeWFXWTdJR1p2Ym5RdGMybDZaVG9nTVRSd2VEc2dmVHd2YzNSNWJHVStDaUFnSUNBOGNtVmpkQ0IzYVdSMGFEMGlNVEF3SlNJZ2FHVnBaMmgwUFNJeE1EQWxJaUJtYVd4c1BTSmliR0ZqYXlJZ0x6NEtJQ0FnSUR4MFpYaDBJSGc5SWpVd0pTSWdlVDBpTlRBbElpQmpiR0Z6Y3owaVltRnpaU0lnWkc5dGFXNWhiblF0WW1GelpXeHBibVU5SW0xcFpHUnNaU0lnZEdWNGRDMWhibU5vYjNJOUltMXBaR1JzWlNJK1dXRnphRUpzYjJOclkyaGhhVzVHYjNKbGRtVnlQQzkwWlhoMFBnbzhMM04yWno0PSIKfQ=="); // not using jsonkeeper anymore as it may go down, instead encoded the json file having SVG image
+        _setTokenURI(newItemId, "blahblah"); // will be setting tokenURI later
         console.log("An NFT with ID %s has been minted to %s", newItemId, msg.sender);
 
 
