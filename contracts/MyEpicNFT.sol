@@ -19,12 +19,17 @@ contract MyEpicNFT is ERC721URIStorage {
 
     // This is our SVG code. All we need to change is the word that's displayed. Everything else stays the same.
     // So, we make a baseSvg variable here that all our NFTs can use.
-    string baseSvg = "<svg xmlns='http://www.w3.org/2000/svg' preserveAspectRatio='xMinYMin meet' viewBox='0 0 350 350'><style>.base { fill: white; font-family: serif; font-size: 24px; }</style><rect width='100%' height='100%' fill='black' /><text x='50%' y='50%' class='base' dominant-baseline='middle' text-anchor='middle'>";
+    // We split the SVG at the part where it asks for the background color.
+    string svgPartOne = "<svg xmlns='http://www.w3.org/2000/svg' preserveAspectRatio='xMinYMin meet' viewBox='0 0 350 350'><style>.base { fill: white; font-family: serif; font-size: 24px; }</style><rect width='100%' height='100%' fill='";
+    string svgPartTwo = "'/><text x='50%' y='50%' class='base' dominant-baseline='middle' text-anchor='middle'>";
 
     // arrays for generating three random words
     string[] firstWords = ["DeBruyne", "Grealish", "Foden", "Mahrez", "Gundogan", "Fernandinho", "Sterling", "Cancelo", "Jesus", "Zinchenko", "Rodri", "Silva", "Walker", "Ederson", "Laporte"];
     string[] secondWords = ["Barney", "Ted", "Joey", "Ross", "Chandler", "Sheldon", "Leonard", "Howard", "Raj", "Harvey", "Mike", "Walter", "Stefan", "Otis", "Tommy"];
     string[] thirdWords = ["Kendall", "Ariana", "Alia", "Deepika", "Milley", "Khushi", "Emma", "Margot", "Angelina", "Selena", "Rihanna", "Camila", "Beyonce", "Billie", "Dua"];
+
+    // Get fancy with it! Declare a bunch of colors.
+    string[] colors = ["#1e293b", "#991b1b", "#92400e", "#3f6212", "#155e75", "#1e40af", "#5b21b6", "#86198f", "#9f1239"];
 
     // At a basic level, events are messages our smart contracts throw out that we can capture on our client in real-time. In the case of our NFT, just because our transaction is mined does not mean the transaction resulted in the NFT being minted. It could have just error’d out!! Even if it error’d out, it would have still been mined in the process.
     event NewEpicNFTMinted(address sender, uint256 tokenId);
@@ -58,6 +63,12 @@ contract MyEpicNFT is ERC721URIStorage {
         return thirdWords[rand];
     }
 
+    function pickRandomColor(uint256 tokenId) public view returns (string memory) {
+        uint256 rand = random(string(abi.encodePacked("COLOR", Strings.toString(tokenId))));
+        rand = rand % colors.length;
+        return colors[rand];
+    }
+
     // a function our user will hit to get their NFT
     function makeAnEpicNFT() public {
         // get the current tokenId, this starts at 0
@@ -69,8 +80,10 @@ contract MyEpicNFT is ERC721URIStorage {
         string memory third = pickRandomThirdWord(newItemId);
         string memory combinedWord = string(abi.encodePacked(first, second, third));
 
+        // Add the random color in
+        string memory randomColor = pickRandomColor(newItemId);
         // I concatenate it all together, and then close the <text> and <svg> tags.
-        string memory finalSvg = string(abi.encodePacked(baseSvg, combinedWord, "</text></svg>"));
+        string memory finalSvg = string(abi.encodePacked(svgPartOne, randomColor, svgPartTwo, combinedWord, "</text></svg>"));
 
         // Get all the JSON metadata in place and base64 encode it.
         string memory json = Base64.encode(
