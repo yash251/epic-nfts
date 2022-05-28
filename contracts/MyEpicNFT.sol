@@ -26,6 +26,9 @@ contract MyEpicNFT is ERC721URIStorage {
     string[] secondWords = ["Barney", "Ted", "Joey", "Ross", "Chandler", "Sheldon", "Leonard", "Howard", "Raj", "Harvey", "Mike", "Walter", "Stefan", "Otis", "Tommy"];
     string[] thirdWords = ["Kendall", "Ariana", "Alia", "Deepika", "Milley", "Khushi", "Emma", "Margot", "Angelina", "Selena", "Rihanna", "Camila", "Beyonce", "Billie", "Dua"];
 
+    // At a basic level, events are messages our smart contracts throw out that we can capture on our client in real-time. In the case of our NFT, just because our transaction is mined does not mean the transaction resulted in the NFT being minted. It could have just error’d out!! Even if it error’d out, it would have still been mined in the process.
+    event NewEpicNFTMinted(address sender, uint256 tokenId);
+
     // We need to pass the name of our NFTs token and its symbol.
     constructor() ERC721 ("YashFavourites", "YASHFAV") {
         console.log("This is a constructor");
@@ -105,5 +108,7 @@ contract MyEpicNFT is ERC721URIStorage {
 
         // increment the counter for when the next NFT is minted
         _tokenIds.increment();
+
+        emit NewEpicNFTMinted(msg.sender, newItemId);
     }
 }
